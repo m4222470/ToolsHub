@@ -3,50 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tool Filter</title>
-    <!-- React and ReactDOM via CDN -->
-    <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+    <link rel="stylesheet" href="style.css">
+    <title>React App</title>
+    <!-- React 18 CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 </head>
 <body>
     <div id="root"></div>
-    <script type="text/javascript">
-        const { useState, useEffect } = React;
 
-        function ToolFilter() {
-            const [tools, setTools] = useState([]);
-            const [filter, setFilter] = useState('');
+    <script type="text/babel">
+        // React component
+        const App = () => {
+            const [data, setData] = React.useState([]);
+            const [filter, setFilter] = React.useState('');
 
-            useEffect(() => {
-                // Simulating fetching tools data
-                const fetchTools = async () => {
-                    // Replace with actual fetching logic
-                    const data = await new Promise(resolve => {
-                        setTimeout(() => resolve(['Tool1', 'Tool2', 'Tool3']), 1000);
-                    });
-                    setTools(data);
+            React.useEffect(() => {
+                // Fetch data from Supabase
+                const fetchData = async () => {
+                    const { data, error } = await supabase
+                        .from('your_table')
+                        .select('*');
+                    if (error) console.error('Error fetching data:', error);
+                    else setData(data);
                 };
-                fetchTools();
+                fetchData();
             }, []);
 
-            const filteredTools = tools.filter(tool => tool.toLowerCase().includes(filter.toLowerCase()));
+            const filteredData = data.filter(item => 
+                item.name.toLowerCase().includes(filter.toLowerCase())
+            );
 
             return (
                 <div>
                     <input 
                         type="text" 
-                        placeholder="Filter tools..." 
+                        placeholder="Filter by name" 
                         value={filter} 
-                        onChange={(e) => setFilter(e.target.value)}
+                        onChange={e => setFilter(e.target.value)}
                     />
                     <ul>
-                        {filteredTools.map((tool, index) => (<li key={index}>{tool}</li>))}
+                        {filteredData.map(item => (
+                            <li key={item.id}>{item.name}</li>
+                        ))}
                     </ul>
                 </div>
             );
-        }
+        };
 
-        ReactDOM.render(<ToolFilter />, document.getElementById('root'));
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
 </html>
